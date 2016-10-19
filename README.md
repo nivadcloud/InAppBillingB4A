@@ -47,7 +47,6 @@ Activity_Create
 
 
     If FirstTime Then
-        btnBuy.Enabled = False
         Dim bazaarRSAKey As String
         Dim nivadApplicationID As String
         Dim nivadBillingSecret As String
