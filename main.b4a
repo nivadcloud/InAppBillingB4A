@@ -1,0 +1,105 @@
+﻿Version=5.8
+NumberOfModules=1
+Module1=Starter
+Build1=Default,io.nivad.nivadbillingdemo1
+ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: http://www.b4x.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="5" android:targetSdkVersion="19"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~AddApplicationText(~\n~<activity android:name="io.nivad.billing.b4a.PurchaseActivity" />)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~'End of default text.~\n~
+IconFile=
+NumberOfFiles=1
+File1=main.bal
+NumberOfLibraries=2
+Library1=core
+Library2=nivad-billing-wrapper
+@EndOfDesignText@
+#Region  Project Attributes 
+	#ApplicationLabel: Nivad Example
+	#VersionCode: 1
+	#VersionName: 
+	'SupportedOrientations possible values: unspecified, landscape or portrait.
+	#SupportedOrientations: unspecified
+	#CanInstallToExternalStorage: False
+#End Region
+
+#Region  Activity Attributes 
+	#FullScreen: False
+	#IncludeTitle: True
+#End Region
+
+
+Sub Process_Globals
+	'These global variables will be declared once when the application starts.
+	'These variables can be accessed from all modules.
+
+End Sub
+
+Sub Globals
+	Dim mNivadBilling As BillingProcessor
+	Private btnBuy As Button
+	Private lblStatus As Label
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+	Activity.LoadLayout("Main")
+	
+	If FirstTime Then
+		btnBuy.Enabled = False
+		Dim bazaarRSAKey As String
+		Dim nivadApplicationID As String
+		Dim nivadBillingSecret As String
+		
+		bazaarRSAKey = "MIHNMA0GCSqGSIb3DQEBAQUAA4G7ADCBtwKBrwC/5qOelT+gZ7MiXpD7WN4la6Bhq98RgXscfFGabTN++oZE2sorW1b3zBaf8J1/m72bS9Dve3BEz1xcaoa6BDZnggcmAXf2Rq+7WY2v8CQ+zmaYJDAOS8sYEACQqyiOhV1v82DwhLpXs+ffzyJsmGIVTJkDTUdRaUadCNfqFk2dBHY4pvI3pdgYqmS5LNSe+44EeivgzjAIhp7n7cTaRd5W6KLFOj7Zh8K2zVl6XQ8CAwEAAQ=="
+		nivadApplicationID = ""
+		nivadBillingSecret = ""
+		
+		mNivadBilling.initialize(bazaarRSAKey, nivadApplicationID, nivadBillingSecret)
+	End If
+End Sub
+
+Sub Activity_Resume
+
+End Sub
+
+Sub Activity_Pause (UserClosed As Boolean)
+
+End Sub
+
+Sub nivadbilling_purchase_history_restored()
+	Log("RESTORED")
+End Sub
+
+Sub nivadbilling_product_purchased(sku As String, details As TransactionDetails)
+	Log("Purchased" & sku)
+	lblStatus.Text = "خرید با موفقیت انجام شد!"
+End Sub
+
+Sub	nivadbilling_initialized()
+	Log("INITIALIZED")
+	btnBuy.Enabled = True
+	If mNivadBilling.isPurchased("gold_version") Then
+		lblStatus.Text = "شما نسخهٔ طلایی برنامه را خریده‌اید"
+	Else
+		lblStatus.Text = "شما می‌توانید نسخهٔ طلایی برنامه را تهیه کنید"	
+	End If
+End Sub
+
+Sub nivadbilling_error(errorCode As Int)
+	Log("ERROR " & errorCode)
+	If errorCode = 205  Then
+		ToastMessageShow("این برنامه توسط نیواد محافظت می‌شود و امکان هک آن وجود ندارد", False)
+	Else		
+		ToastMessageShow("اشکال در خرید", False)
+	End If
+End Sub
+
+Sub btnBuy_Click
+	mNivadBilling.purchase("gold_version")
+End Sub
+
+Sub btnConsume_Click
+	mNivadBilling.consumePurchase("gold_version")
+	ToastMessageShow("خرید مصرف شد", False)
+	If mNivadBilling.isPurchased("gold_version") Then
+		lblStatus.Text = "شما نسخهٔ طلایی برنامه را خریده‌اید"
+	Else
+		lblStatus.Text = "شما می‌توانید نسخهٔ طلایی برنامه را تهیه کنید"	
+	End If
+End Sub
